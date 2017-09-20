@@ -960,9 +960,9 @@ Control::aerobatics_control()
 	const float Cn_delta_r = -0.0035663f; //Rudder Control Derivative Coefficient (/deg)
     //const float Cl_delta_r = 0.00093111f; //Other Aileron Control Derivative Coefficient  -- Custom (JL) -- Need to double check sign (+/-)
 
-	//const float AilDef_max = 52.0f; //52.0fMaximum Aileron Deflection (deg)
-	//const float ElevDef_max = 59.0f; //35.0fMaximum Elevator Deflection (deg)
-	//const float RudDef_max = 49.0f; //56.0fMaximum Rudder Deflection (deg)
+	const float AilDef_max = 52.0f; //52.0fMaximum Aileron Deflection (deg)
+	const float ElevDef_max = 59.0f; //35.0fMaximum Elevator Deflection (deg)
+	const float RudDef_max = 49.0f; //56.0fMaximum Rudder Deflection (deg)
 	const float omega_t_min = 1716.0f; // Minimum Thrust(RPM)
 	const float omega_t_max = 6710.0f; //Maximimum Thrust (RPM)
 
@@ -1146,29 +1146,30 @@ Control::aerobatics_control()
     omega_t =  cont_ff[3];
     */
 
-	/*
-    //Thrust Control for extra slipstream
+	
+    //Thrust Control for extra slipstream---------------------------------------------------------------------------------------------------
 
     float Vs_des_A = 0.0f;
     float Vs_des_E = 0.0f;
     float Vs_des_R = 0.0f;
 
-    if (abs(AilDef) > AilDef_max){Vs_des_A = powf(abs(L/(.5f*ro*S*b*Cl_delta_a*AilDef_max)),.5f);}
-    if (abs(ElevDef) > ElevDef_max){Vs_des_E = powf(abs(M/(.5f*ro*S*cbar*Cm_delta_e*ElevDef_max)),.5f);}
-    if (abs(RudDef) > RudDef_max){Vs_des_R = powf(abs(N/(.5f*ro*S*b*Cn_delta_r*RudDef_max)),.5f);}
+    if (abs(AilDef) > AilDef_max) Vs_des_A = powf(abs(L/(0.5f * rho * S * b * Cl_delta_a * AilDef_max)),0.5f);
+    if (abs(ElevDef) > ElevDef_max) Vs_des_E = powf(abs(M/(0.5f * rho * S * cbar * Cm_delta_e * ElevDef_max)),0.5f);
+    if (abs(RudDef) > RudDef_max) Vs_des_R = powf(abs(N/(0.5f * rho * S * b * Cn_delta_r * RudDef_max)),0.5f);
 
     float Vs_des = Vs_des_A;
 
     if (Vs_des < Vs_des_E) Vs_des = Vs_des_E;
     if (Vs_des < Vs_des_R) Vs_des = Vs_des_R; 
 
-    if (Vs_des > _ctrl_state.x_vel and Vs_des > 0.0f)
+    if (Vs_des > _ctrl_state.x_vel && Vs_des > 0.0f)
     {
-    	T += (rho*A_prop/2.0f) * (powf(Vs_des,2.0f)- powf(_ctrl_state.x_vel,2.0f));
-    	if(T < 0.0f) T=0.0f;
-    	omega_t = powf(T/kt,.5f); //RPM command
+    	T += (rho*A_prop / 2.0f) * (powf(Vs_des,2.0f) - powf(_ctrl_state.x_vel,2.0f));
+
+    	if(T < 0.0f) T = 0.0f;
+    	omega_t = powf(T / kt,0.5f); //RPM command
     }
-	*/
+	
 
     //Saturate motor speed command
     if (omega_t < omega_t_min) omega_t = omega_t_min;
@@ -1239,8 +1240,8 @@ Control::aerobatics_control()
     // Full Control
 	if (true) {
 		_actuators.control[actuator_controls_s::INDEX_ROLL] = outputs[0];
-    	_actuators.control[actuator_controls_s::INDEX_PITCH] = outputs[1];
-		_actuators.control[actuator_controls_s::INDEX_YAW] = outputs[2];
+    	_actuators.control[actuator_controls_s::INDEX_PITCH] = -outputs[1];
+		_actuators.control[actuator_controls_s::INDEX_YAW] = -outputs[2];
     	_actuators.control[actuator_controls_s::INDEX_THROTTLE] = outputs[3];
 	} 
 	// Aileron Control
@@ -1286,6 +1287,8 @@ Control::maneuver_generator()
 	p(0) = _ctrl_state.x_pos;
 	p(1) = _ctrl_state.y_pos;
 	p(2) = _ctrl_state.z_pos;
+
+	// Level flight trims
 	static Level_trim level_trim;
 	
 	//Agile maneuver variables
