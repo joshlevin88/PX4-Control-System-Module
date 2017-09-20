@@ -1869,11 +1869,27 @@ Control::get_level_trim(float curr_V)
 	}
 	*/
 	
+	/* Older model
 	//Just fly at 7 m/s
 	level_trim_return.V      = 7.0f;
 	level_trim_return.theta  = 0.2085f;
 	level_trim_return.Elev   = -0.1169f;
 	level_trim_return.Thrust = 3732.0f;
+	*/
+
+	// 5 m/s
+	level_trim_return.V      = 5.0f;
+	level_trim_return.theta  = 0.3639f;
+	level_trim_return.Elev   = -0.2287f;
+	level_trim_return.Thrust = 3839.8f;
+
+	/*
+	// 7 m/s
+	level_trim_return.V      = 7.0f;
+	level_trim_return.theta  = 0.1910f;
+	level_trim_return.Elev   = -0.1103f;
+	level_trim_return.Thrust = 3978.8.0f;
+	*/
 	
 	return level_trim_return;
 }
